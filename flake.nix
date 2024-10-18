@@ -16,6 +16,9 @@
         inherit system;
         config = {
           allowUnfree = true;
+          # Enable Wayland support where available
+          # firefox.enableWayland = true;
+          # chromium.enableWayland = true;
         };
       };
     in
@@ -33,6 +36,10 @@
             # gimp
             # vlc
             
+            # Wayland specific utilities
+            wl-clipboard
+            xdg-utils
+            
             # Terminal utilities
             # git
             # htop
@@ -43,7 +50,6 @@
             # python3
           ];
           
-          # Ensure XDG desktop integration
           extraOutputsToInstall = [ "bin" "man" "share" ];
         };
       };
