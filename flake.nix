@@ -1,5 +1,5 @@
 {
-  description = "Personal Nix configuration with GUI applications";
+  description = "Home Manager Configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -9,61 +9,81 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager }: 
+  outputs = { self, nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;
         config = {
           allowUnfree = true;
-          # Enable Wayland support where available
           # firefox.enableWayland = true;
-          # chromium.enableWayland = true;
         };
       };
     in
     {
-      packages.${system} = {
-        default = self.packages.${system}.myPackages;
-        myPackages = pkgs.buildEnv {
-          name = "my-packages";
-          paths = with pkgs; [
-            # GUI Applications
-            # firefox
-            # vscode
-            # spotify
-            discord
-            # gimp
-            # vlc
-            
-            # Wayland specific utilities
-            wl-clipboard
-            xdg-utils
-            
-            # Terminal utilities
-            # git
-            # htop
-            # ripgrep
-            
-            # Development tools
-            # gcc
-            # python3
-          ];
-          
-          extraOutputsToInstall = [ "bin" "man" "share" ];
-        };
-      };
+      homeConfigurations."tony" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        
+        modules = [
+          {
+            home = {
+              username = "tony";
+              homeDirectory = "/home/tony";
+              stateVersion = "23.11"; # Change this to your nixpkgs version
+              
+              packages = with pkgs; [
+                # GUI Applications
+                # firefox
+                # vscode
+                # spotify
+                discord
+                # gimp
+                # vlc
+                
+                # Wayland utilities
+                wl-clipboard
+                xdg-utils
+                
+                # Terminal utilities
+                # git
+                # htop
+                # ripgrep
+                
+                # Development tools
+                # gcc
+                # python3
+              ];
+              
+              # Manage session variables
+              sessionVariables = {
+                NIXOS_OZONE_WL = "1";
+                MOZ_ENABLE_WAYLAND = "1";
+                QT_QPA_PLATFORM = "wayland";
+                GDK_BACKEND = "wayland";
+              };
+            };
 
-      nixConfig = {
-        experimental-features = [ "nix-command" "flakes" ];
-        substituters = [
-          "https://cache.nixos.org"
+            # Enable Home Manager
+            programs.home-manager.enable = true;
+
+            # Configure git
+            programs.git = {
+              enable = true;
+              userName = "tony";
+              userEmail = "antonuostony1@gmail.com"; # Change this
+            };
+
+            # XDG MIME types and default applications
+            xdg = {
+              enable = true;
+              mime.enable = true;
+              mimeApps.enable = true;
+            };
+
+            # Nicely reload system units when changing configs
+            systemd.user.startServices = "sd-switch";
+          }
         ];
-        trusted-public-keys = [
-          "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        ];
-        auto-optimise-store = true;
-        allowed-users = [ "@wheel" ];
       };
     };
 }
