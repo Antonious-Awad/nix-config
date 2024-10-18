@@ -16,11 +16,6 @@
         inherit system;
         config = {
           allowUnfree = true;
-          # Optional: you can also allow specific unfree packages instead of all
-          # allowUnfreePredicate = pkg: builtins.elem (pkg.pname or "") [
-          #   "discord"
-          #   "spotify"
-          # ];
         };
       };
     in
@@ -47,10 +42,12 @@
             # gcc
             # python3
           ];
+          
+          # Ensure XDG desktop integration
+          extraOutputsToInstall = [ "bin" "man" "share" ];
         };
       };
 
-      # Nix configuration
       nixConfig = {
         experimental-features = [ "nix-command" "flakes" ];
         substituters = [
