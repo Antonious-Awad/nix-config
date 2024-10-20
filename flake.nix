@@ -29,6 +29,7 @@
             home = {
               username = "tony";
               homeDirectory = "/home/tony";
+              stateVersion = "24.05";
               
               packages = with pkgs; [
                 # GUI Applications
